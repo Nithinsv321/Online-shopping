@@ -5,6 +5,7 @@ const router = new express.Router();
 const session = require('express-session');
 const bcrypt = require('bcryptjs')
 const Admin = require('../../models/admin');
+const Product = require('../../models/products')
 
 //admin 
 // get -------------------------------------------------------------------------------------
@@ -56,7 +57,14 @@ router.get('/register',auth,(req,res)=>{
         res.status(500).send();
     }
 });
-
+//add-product
+router.get('/add-product',logauth,(req,res)=>{
+    try {
+        res.render('admin/index',{page:'add_product',user:req.session.admin});
+    } catch (error) {
+        res.status(500).send();
+    }
+});
 
 //post -------------------------------------------------------------------------------------
 //login admin
