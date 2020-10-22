@@ -1,0 +1,53 @@
+<br>
+<div class="row">
+    <div class="col-lg-12">
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Add Products</li>
+        </ol>
+    </div>
+    <div class="col-md-6">
+        <% if(typeof update_errors != 'undefined'){ %>
+            <% update_errors.forEach(function(update_error){ %>
+                <div class="alert alert-danger" role="alert">
+                    <%= update_error.msg; %>
+                  </div>
+            <% }); %>
+        <% } %>
+        <form action="/admin/update-stock" method="post">
+            <div class="form-group">
+                <label for="search">Brand</label>
+                <select name="brand" class="form-control">
+                    <option value="">Select</option>
+                    <% brands.forEach(function(brand){ %>
+                        <option value="<%= brand.brand %>"><%= brand.brand %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="search">Model</label>
+                <input type="text" class="form-control" name="model">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Get product</button>
+            </div>
+        </form>
+    </div>
+    <% if(typeof product != 'undefined'){ %>
+        <div class="col-xl-3 col-md-6">
+            <div class="card" style="width: 18rem;">
+                <!-- <img src="..." class="card-img-top" alt="..."> -->
+                <div class="card-body">
+                <h5 class="card-title"><%= product.name %></h5>
+                <p class="card-text">Brand: <%= product.brand %></p>
+                <p class="card-text">Price: <%= product.price %></p>
+                <p class="card-text">Stock: <%= product.quantity %></p>
+                <a href="/admin/add-stock/<%= product._id %>" class="btn btn-primary">Add stock</a>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    
+</div>
+
+

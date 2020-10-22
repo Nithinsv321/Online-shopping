@@ -4,20 +4,35 @@
         <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item active">Add Products</li>
         </ol>
-        <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+        <% if(typeof add_product_errors != 'undefined'){ %>
+            <% add_product_errors.forEach(function(add_product_error){ %>
+                <div class="alert alert-danger" role="alert">
+                    <%= add_product_error.msg; %>
+                  </div>
+            <% }); %>
+        <% } %>
+        <form action="/admin/add-product" method="POST">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input class="form-control" type="text" placeholder="Enter product Name" name="name" >
             </div>
             <div class="form-group">
                 <label for="category">category</label>
-                <select name="category" class="form-control col-md-3">
+                <select class="form-control col-md-3" name="category">
                     <option value="">Select</option>
+                    <% categorys.forEach(function(category){ %>
+                        <option value="<%= category.category %>"><%= category.category %></option>
+                    <% }); %>
                 </select>
             </div>
             <div class="form-group">
                 <label for="brand">Brand</label>
-                <input class="form-control" type="text" placeholder="Enter product Brand" name="brand" >
+                <select class="form-control col-md-3" name="brand">
+                    <option value="">Select</option>
+                    <% brands.forEach(function(brand){ %>
+                        <option value="<%= brand.brand %>"><%= brand.brand %></option>
+                    <% }); %>
+                </select>
             </div>
             <div class="form-group">
                 <label for="model">Model</label>
@@ -28,9 +43,13 @@
                 <input class="form-control col-md-3" type="text" placeholder="Enter product price" name="price" >
             </div>
             <div class="form-group">
+                <label for="price">Quantity</label>
+                <input class="form-control col-md-3" type="text" placeholder="Enter Quantity" name="quantity" >
+            </div>
+            <!-- <div class="form-group">
                 <label for="image">Image</label><br>
                 <input type="file" name="image">
-            </div>
+            </div> -->
             <button class="btn btn-primary" type="submit">Add Product</button>
         </form>
         

@@ -8,18 +8,26 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Brand</th>
             <th>Category</th>
             <th>Model</th>
             <th>price</th>
+            <th>quandity</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <th scope='row'>1</th>
-            <td>gshock</td>
-            <td>sports</td>
-            <td>ga-110</td>
-            <td> 8999</td>
-        </tr>
+        <% if(products != 'undefined' ){ %>
+            <% products.forEach(function(product){ %>
+                <tr>
+                    <th scope='row'>1</th>
+                    <td><%= product.name %></td>
+                    <td><%= product.brand %></td>
+                    <td><%= product.category %></td>
+                    <td><%= product.model %></td>
+                    <td><%= product.price %></td>
+                    <td><%= product.quantity %></td>
+                </tr>
+            <% }); %>
+        <% } %>
     </tbody>
 </table>

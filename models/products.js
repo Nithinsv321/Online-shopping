@@ -23,6 +23,7 @@ const productSchema = new mongoose.Schema({
     },
     model:{
         type:String,
+        unique:true,
         required:true,
         trim:true,
 
@@ -32,11 +33,16 @@ const productSchema = new mongoose.Schema({
         required:true,
         trim:true,
     },
-    image:{
-        type:String,
+    quantity:{
+        type:Number,
         required:true,
-        trim:true
-    }
+        trim:true,
+    },
+    // image:{
+    //     type:String,
+    //     required:true,
+    //     trim:true
+    // }
 });
 
 const product = mongoose.model('Product',productSchema);
