@@ -16,5 +16,12 @@ const auth = (req,res,next)=>{
     }
 }
 
+const userAuth = (req,res,next)=>{
+    if(!req.session.user){
+        res.redirect('/login');
+    }else{
+        next();
+    }
+}
 
-module.exports = {logauth,auth};
+module.exports = {logauth,auth,userAuth};

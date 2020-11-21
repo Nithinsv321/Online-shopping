@@ -6,6 +6,7 @@ dotenv.config();
 const adminRouter = require('./routers/admin/adminRouter');
 const mainRouter = require('./routers/router');
 const db = require('./db/connection');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 const IN_PROD = process.env.NODE_ENV === 'production';
@@ -13,7 +14,7 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
-
+app.use(fileUpload());
 app.use(session({
     name:process.env.SESSION_NAME,
     resave:false,

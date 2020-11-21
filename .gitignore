@@ -1,3 +1,4 @@
 node_modules
 .env
-auto.sh
+public/user/img
+public/product-images

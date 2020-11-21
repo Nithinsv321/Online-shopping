@@ -16,7 +16,11 @@ const orderSchema = new mongoose.Schema({
         required:true,
         default: 1,
         trim:true
-
+    },
+    payment:{
+        type:String,
+        required:true,
+        trim:true,
     }
 });
 

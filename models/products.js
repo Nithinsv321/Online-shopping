@@ -11,6 +11,11 @@ const productSchema = new mongoose.Schema({
         required:true,
         trim:true,
     },
+    type:{
+        type:String,
+        required:true,
+        
+    },
     category:{
         type:String,
         required:true,
@@ -38,14 +43,9 @@ const productSchema = new mongoose.Schema({
         required:true,
         trim:true,
     },
-    // image:{
-    //     type:String,
-    //     required:true,
-    //     trim:true
-    // }
 });
 
-const product = mongoose.model('Product',productSchema);
+const product = mongoose.model('product',productSchema);
 
 
 module.exports = product;
