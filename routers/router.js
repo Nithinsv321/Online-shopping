@@ -48,7 +48,7 @@ router.get('/logout', (req, res) => {
     try {
         req.session.destroy(err=>{
             if(err){
-                return res.redirect('/admin/home');
+                return res.redirect('/');
             }
 
             res.clearCookie(process.env.SESSION_NAME);
@@ -59,22 +59,40 @@ router.get('/logout', (req, res) => {
     }
 });
 //add-to-cart
-router.get('/add_to_cart/:id',userAuth,async(req,res)=>{
+router.get('/add_to_cart',userAuth,async(req,res)=>{
     try {
-        const id = req.params.id;
-        const userCart = await Cart.findOne({user:req.session.user._id,product:id});
-        if(!userCart){
-            const addCart = await Cart({
-                user:req.session.user._id,
-                product:id,
-                quantity:1
-            });
-            await addCart.save();
-            return res.redirect('/');
-        }else{
-            const updateCart = await Cart.findOneAndUpdate({product:id,user:req.session.user._id},{$inc:{quantity:1}});
-            res.redirect('/');
+        const s = req.query.s;
+        const d= req.query.d;
+        if(s){
+            const userCart = await Cart.findOne({user:req.session.user._id,product:s});
+            if(!userCart){
+                const addCart = await Cart({
+                    user:req.session.user._id,
+                    product:s,
+                    quantity:1
+                });
+                await addCart.save();
+                return res.redirect('/');
+            }else{
+                const updateCart = await Cart.findOneAndUpdate({product:id,user:req.session.user._id},{$inc:{quantity:1}});
+                res.redirect('/');
+            }
+        }else if(d){
+            const userCart = await Cart.findOne({user:req.session.user._id,product:id});
+            if(!userCart){
+                const addCart = await Cart({
+                    user:req.session.user._id,
+                    product:d,
+                    quantity:1
+                });
+                await addCart.save();
+                return res.redirect('/detail/'+d);
+            }else{
+                const updateCart = await Cart.findOneAndUpdate({product:id,user:req.session.user._id},{$inc:{quantity:1}});
+                res.redirect('/detail/'+d);
+            }
         }
+        
     } catch (error) {
         console.log(error)
         res.status(500).send();
@@ -93,28 +111,28 @@ router.get('/shop',async(req,res)=>{
                 const cart = await Cart.find({user:req.session.user._id});
                 return res.render('user/index',{page:'shop',user:req.session.user,cart,products,brands});
             }
-            res.render('user/index',{page:'shop',user:req.session.user,products,brands});
+            res.render('user/index',{page:'shop',products,brands});
         }else if(g){
             const products = await Products.find({category:g});
             if(req.session.user){
                 const cart = await Cart.find({user:req.session.user._id});
                 return res.render('user/index',{page:'shop',user:req.session.user,cart,products,brands});
             }
-            res.render('user/index',{page:'shop',user:req.session.user,products,brands});
+            res.render('user/index',{page:'shop',products,brands});
         }else if(b){
             const products = await Products.find({brand:b});
             if(req.session.user){
                 const cart = await Cart.find({user:req.session.user._id});
-                return res.render('user/index',{page:'shop',user:req.session.user,cart,products,brands});
+                return res.render('user/index',{page:'shop',cart,products,brands});
             }
-            res.render('user/index',{page:'shop',user:req.session.user,products,brands});
+            res.render('user/index',{page:'shop',products,brands});
         }else{
             const products = await Products.find({});
             if(req.session.user){
                 const cart = await Cart.find({user:req.session.user._id});
                 return res.render('user/index',{page:'shop',user:req.session.user,cart,products,brands});
             } 
-            res.render('user/index',{page:'shop',user:req.session.user,products,brands});
+            res.render('user/index',{page:'shop',products,brands});
         }
         
     } catch (error) {
@@ -123,15 +141,50 @@ router.get('/shop',async(req,res)=>{
     }
 });
 //product detail
-router.get('/detail',(req,res)=>{
+router.get('/detail/:id',async(req,res)=>{
     try {
-        res.render('user/index',{page:'details'})
+        const id = req.params.id;
+        const product = await Products.findById({_id:id});
+        if(req.session.user){
+            const cart = await Cart.find({user:req.session.user._id});
+            return res.render('user/index',{page:'details',user:req.session.user,cart,product});
+        }
+        res.render('user/index',{page:'details',product})
     } catch (error) {
         console.log(error)
         res.status(500).send();
     }
 });
-
+//cart
+router.get('/cart',userAuth, async(req, res) => {
+    try {
+        const cart = await Cart.find({user:req.session.user._id});
+        const cartitem = await Cart.aggregate([
+            {
+                $match:{
+                    user:req.session.user._id
+                }
+            },
+            // {$lookup:{   
+            //     from: 'products',
+            //     localField: 'product',
+            //     foreignField: '_id',
+            //     as: 'product'
+            // }}
+        ])
+        // $lookup:{
+        //     from: 'products',
+        //     localField: 'product',
+        //     foreignField: '_id',
+        //     as: 'product'
+        // }
+        console.log('cart'+cartitem);
+        res.render('user/index',{page:'cart',user:req.session.user,cart});
+    } catch (error) {
+        console.log(error);
+        res.status(500).send();
+    }
+});
 
 //post--------------------------------
 //login
