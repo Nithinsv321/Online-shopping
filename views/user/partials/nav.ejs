@@ -23,8 +23,18 @@
     <ul class="navbar-nav ml-auto">  
       <% if(typeof user != 'undefined' && typeof cart != 'undefined'){ %>
         <li class="nav-item"><a class="nav-link" href="/cart"> <i class="fas fa-dolly-flatbed mr-1 text-gray"></i>Cart<small class="text-gray">(<%= cart.length %>)</small></a></li>
-        
-        <li class="nav-item"><a class="nav-link" href="/logout"> <i class="fas fa-user-alt mr-1 text-gray"></i>Logout</a></li>
+      <div class="btn-group">
+        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user-alt mr-1 "></i>
+          Account
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#"><i class="fas fa-user mr-1"></i> Profile</a>
+          <a class="dropdown-item" href="/orders"><i class="fas fa-dolly-flatbed mr-1"></i> Orders</a>
+          <a class="dropdown-item" href="#"></a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+        </div>
+      </div>
       <% }else{ %>
         <li class="nav-item"><a class="nav-link" href="/login"> <i class="fas fa-user-alt mr-1 text-gray"></i>Login</a></li>
       <% } %>  

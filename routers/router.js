@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 require('../db/connection');
+const mongoose = require('mongoose')
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const {userAuth} = require('../controllers/conrtoller');
@@ -74,11 +75,11 @@ router.get('/add_to_cart',userAuth,async(req,res)=>{
                 await addCart.save();
                 return res.redirect('/');
             }else{
-                const updateCart = await Cart.findOneAndUpdate({product:id,user:req.session.user._id},{$inc:{quantity:1}});
+                const updateCart = await Cart.findOneAndUpdate({product:s,user:req.session.user._id},{$inc:{quantity:1}});
                 res.redirect('/');
             }
         }else if(d){
-            const userCart = await Cart.findOne({user:req.session.user._id,product:id});
+            const userCart = await Cart.findOne({user:req.session.user._id,product:d});
             if(!userCart){
                 const addCart = await Cart({
                     user:req.session.user._id,
@@ -88,7 +89,7 @@ router.get('/add_to_cart',userAuth,async(req,res)=>{
                 await addCart.save();
                 return res.redirect('/detail/'+d);
             }else{
-                const updateCart = await Cart.findOneAndUpdate({product:id,user:req.session.user._id},{$inc:{quantity:1}});
+                const updateCart = await Cart.findOneAndUpdate({product:s,user:req.session.user._id},{$inc:{quantity:1}});
                 res.redirect('/detail/'+d);
             }
         }
@@ -162,30 +163,88 @@ router.get('/cart',userAuth, async(req, res) => {
         const cartitem = await Cart.aggregate([
             {
                 $match:{
-                    user:req.session.user._id
+                    user:{$in:[mongoose.Types.ObjectId(req.session.user._id),mongoose.Types.ObjectId(cart.user)]}
                 }
             },
-            // {$lookup:{   
-            //     from: 'products',
-            //     localField: 'product',
-            //     foreignField: '_id',
-            //     as: 'product'
-            // }}
-        ])
-        // $lookup:{
-        //     from: 'products',
-        //     localField: 'product',
-        //     foreignField: '_id',
-        //     as: 'product'
-        // }
-        console.log('cart'+cartitem);
-        res.render('user/index',{page:'cart',user:req.session.user,cart});
+            {$lookup:{   
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'prodetails'
+            }}
+        ]);
+        
+        res.render('user/index',{page:'cart',user:req.session.user,cart,cartitem});
     } catch (error) {
         console.log(error);
         res.status(500).send();
     }
 });
-
+//cart remove 
+router.get('/remove_item/:id',userAuth,async(req,res)=>{
+    try{
+        const id= req.params.id;
+        const item = await Cart.findByIdAndDelete({_id:id});
+        res.redirect('/cart');
+            
+    }catch(error){
+        console.log(error);
+        res.status(500).send();
+    }
+});
+//order history
+router.get('/orders',userAuth,async(req,res)=>{
+    try{
+        const cart = await Cart.find({user:req.session.user._id});
+        res.render('user/index',{page:'orders',user:req.session.user,cart});
+    }catch(e){
+        console.log(e);
+        res.status(500).send();
+    }
+});
+//checkout
+router.get('/checkout',userAuth,async(req,res)=>{
+    try{
+        const cart = await Cart.find({user:req.session.user._id});
+        const id = req.query.g;
+        if(id){
+            const cartitem = await Cart.aggregate([
+                {
+                    $match:{
+                        user:{$in:[mongoose.Types.ObjectId(req.session.user._id),mongoose.Types.ObjectId(cart.user)]},
+                        _id:{$in:[mongoose.Types.ObjectId(id),mongoose.Types.ObjectId(cart._id)]}
+                    }
+                },
+                {$lookup:{   
+                    from: 'products',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'prodetails'
+                }}
+            ]);
+            return res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem});
+        }else{
+            const cartitem = await Cart.aggregate([
+                {
+                    $match:{
+                        user:{$in:[mongoose.Types.ObjectId(req.session.user._id),mongoose.Types.ObjectId(cart.user)]}
+                    }
+                },
+                {$lookup:{   
+                    from: 'products',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'prodetails'
+                }}
+            ]);
+            
+            res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem});
+        }
+    }catch(e){
+        console.log(e);
+        res.status(500).send();
+    }
+});
 //post--------------------------------
 //login
 router.post('/login',async(req, res) => {
