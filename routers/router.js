@@ -10,6 +10,9 @@ const Brand = require('../models/brand');
 const Orders = require('../models/orders');
 const Products =require('../models/products');
 const Cart = require('../models/cart');
+const userDetails = require('../models/userDetails');
+const helper = require('../controllers/helper');
+ 
 //get ---------------------------------------------
 //homePage
 router.get('/',async(req,res)=>{
@@ -196,7 +199,20 @@ router.get('/remove_item/:id',userAuth,async(req,res)=>{
 router.get('/orders',userAuth,async(req,res)=>{
     try{
         const cart = await Cart.find({user:req.session.user._id});
-        res.render('user/index',{page:'orders',user:req.session.user,cart});
+        const orders = await Orders.find({user:req.session.user._id});
+        // orders.forEach(async function(order){
+        //     const orderitems = await order.products.aggregate([
+        //         {$lookup:{   
+        //             from: 'products',
+        //             localField: 'product',
+        //             foreignField: '_id',
+        //             as: 'prodetails'
+        //         }}
+        //     ]);
+        //     console.log(orderitems);
+
+        // });
+        res.render('user/index',{page:'orders',user:req.session.user,cart,orders});
     }catch(e){
         console.log(e);
         res.status(500).send();
@@ -207,6 +223,7 @@ router.get('/checkout',userAuth,async(req,res)=>{
     try{
         const cart = await Cart.find({user:req.session.user._id});
         const id = req.query.g;
+        const address = await userDetails.findOne({user:req.session.user._id});
         if(id){
             const cartitem = await Cart.aggregate([
                 {
@@ -222,7 +239,7 @@ router.get('/checkout',userAuth,async(req,res)=>{
                     as: 'prodetails'
                 }}
             ]);
-            return res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem});
+            return res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem,address});
         }else{
             const cartitem = await Cart.aggregate([
                 {
@@ -237,14 +254,34 @@ router.get('/checkout',userAuth,async(req,res)=>{
                     as: 'prodetails'
                 }}
             ]);
-            
-            res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem});
+            res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem,address});
         }
     }catch(e){
         console.log(e);
         res.status(500).send();
     }
 });
+//payment
+router.get('/payment',(req,res)=>{
+    try{
+        res.render('payment/gateway');
+    }catch(error){
+        console.log(error);
+        res.status(500).send();
+    }
+});
+//order
+router.get('/buy/:id',userAuth,async(req,res)=>{
+    try {
+        const id= req.params.id;
+        const item = await Products.findById({_id:id});
+        res.render('user/index',{page:'buy',item});
+    } catch (error) {
+        console.log(error);
+        res.status(500).send();
+    }
+});
+
 //post--------------------------------
 //login
 router.post('/login',async(req, res) => {
@@ -309,22 +346,72 @@ router.post('/register',async(req,res)=>{
     }
 });
 
-//order
-router.get('/buy/:id',userAuth,async(req,res)=>{
-    try {
-        const id= req.params.id;
-        // const order = new Orders({
-        //     user:req.session.user._id,
-        //     product:id,
-        //     payment:'cod'
-        // });
-        // await order.save();
-        const item = await Products.findById({_id:id});
-        res.render('user/index',{page:'buy',item});
-    } catch (error) {
+router.post('/ship',userAuth,async(req,res)=>{
+    try{
+        const cart = await Cart.find({user:req.session.user._id});
+        const userAddress = await userDetails.findOne({user:req.session.user._id});
+        const cartitem = await Cart.aggregate([
+            {
+                $match:{
+                    user:{$in:[mongoose.Types.ObjectId(req.session.user._id),mongoose.Types.ObjectId(cart.user)]}
+                }
+            },
+            {$lookup:{   
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'prodetails'
+            }}
+        ]);
+        const {name,email,address,country,state,zip,save_info,product,quantity,paymentMethod} = req.body;
+        if(save_info == 'on'){
+                const regAddress = new userDetails({
+                    user:req.session.user._id,
+                    name:name,
+                    mailid:email,
+                    address:{
+                        houseName:address,
+                        country:country,
+                        state:state,
+                        zip:zip,
+                    }
+                });
+                await regAddress.save();
+        }
+        if(typeof product == 'string'){
+            await helper.placeOrder(req.body,req.session.user).then(async()=>{
+                if(paymentMethod == 'cod'){
+                    res.redirect('/orders');
+                }else{
+                    res.redirect('/payment');
+                }
+                
+            }).catch(()=>{
+                res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem,address:userAddress,msg:'Order failed please try again'});
+            });
+        }else{
+            await helper.placeOrders(req.body).then(async(proqty)=>{
+                await helper.bulkOrder(proqty,req.body,req.session.user).then(()=>{
+                    if(paymentMethod == 'cod'){
+                        res.redirect('/orders');
+                    }else{
+                        res.redirect('/payment');
+                    }
+                }).catch(()=>{
+                    res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem,address:userAddress,msg:'Order failed please try again'});
+                });
+            }).catch(()=>{
+                res.render('user/index',{page:'checkout',user:req.session.user,cart,cartitem,address:userAddress,msg:'Order failed please try again'});
+            });
+        }
+
+    }catch(error){
         console.log(error);
         res.status(500).send();
     }
 })
+
+
+
 
 module.exports = router;

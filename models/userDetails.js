@@ -11,14 +11,8 @@ const userDetailSchema = new mongoose.Schema({
         required:true,
         trim:true
     },
-    dob:{
-        type:Date,
-        required:true,
-        trim:true
-    },
     mailid:{
         type:String,
-        required:true,
         trim:true
     },
     address:{
@@ -27,12 +21,7 @@ const userDetailSchema = new mongoose.Schema({
             required:true,
             trim:true
         },
-        city:{
-            type:String,
-            required:true,
-            trim:true
-        },
-        pincode:{
+        zip:{
             type:String,
             required:true,
             trim:true

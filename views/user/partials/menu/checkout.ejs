@@ -9,7 +9,7 @@
           <div class="col-lg-6 text-lg-right">
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb justify-content-lg-end mb-0 px-0">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Checkout</li>
               </ol>
             </nav>
@@ -20,6 +20,9 @@
     <section class="py-5">
       <h2 class="h5 text-uppercase mb-4">Checkout</h2>
       <div class="row">
+        <% if(typeof msg != 'undefined'){ %>
+          <div class="alert alert-danger"><%= msg %></div>
+        <% } %>
         <div class="col-lg-8 mb-4 mb-lg-0">
           <!-- CART TABLE-->
           <div class="table-responsive mb-4">
@@ -61,13 +64,91 @@
               </tbody>
             </table>
           </div>
-          <!-- CART NAV-->
+          <form class="needs-validation" novalidate="" method="POST" action="/ship">
+            <% if(typeof cartitem != 'undefined'){ %>
+              <% cartitem.forEach(function(item){ %>
+                    <input type="hidden" value="<%= item.product %>" name="product">
+                    <input type="hidden" value="<%= item.quantity %>" name="quantity">
+                <% }); %>
+            <% } %>
+            <div class="row">
+              
+            </div>
+            <div class="mb-3">
+              <label for="firstName">First name</label>
+              <input type="text" class="form-control" name="name" placeholder="" value="<%= !address ? '': address.name %>" required="">
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="email">Email <span class="text-muted">(Optional)</span></label>
+              <input type="email" class="form-control" name="email" placeholder="you@example.com" value="<%= !address ? '': address.mailid %>">
+              <div class="invalid-feedback">
+                Please enter a valid email address for shipping updates.
+              </div>
+            </div>
+    
+            <div class="mb-3">
+              <label for="address">Address</label>
+              <input type="text" class="form-control" name="address" placeholder="1234 Main St" required="" value="<%= !address ? '': address.address.houseName %>">
+              <div class="invalid-feedback">
+                Please enter your shipping address.
+              </div>
+            </div> 
+            <div class="row">
+              <div class="col-md-5 mb-3">
+                <label for="country">Country</label>
+                <input type="text" class="form-control" name="country" required=""  value="<%= !address ? '': address.address.country %>">
+                <div class="invalid-feedback">
+                  Please select a valid country.
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="state">State</label>
+                <input type="text" class="form-control" name="state" required="" value="<%= !address ? '': address.address.state %>">
+                <div class="invalid-feedback">
+                  Please provide a valid state.
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="zip">Zip</label>
+                <input type="text" class="form-control" name="zip" placeholder="" required="" value="<%= !address ? '': address.address.zip %>">
+                <div class="invalid-feedback">
+                  Zip code required.
+                </div>
+              </div>
+            </div>
+            <hr class="mb-4">
+            <% if(typeof address == 'undefined'){ %>
+              <div>
+                <input type="checkbox" name="save_info">
+                <label for="checkbox">Save this information for later</label>
+              </div>
+            <% } %>
+            
+            <div class="col-md-5 mb-3">
+              <label for="payment">Payment</label>
+              <select class="custom-select d-block w-100" id="country" required="" name="paymentMethod">
+                <option value="">Choose...</option>
+                <option value="dc">Debit Card</option>
+                <option value="cc">Credit Card</option>
+                <option value="cod">Cash on Delivery</option>
+              </select>
+              <div class="invalid-feedback">
+                Please select a valid payment method.
+              </div>
+            </div>
+
+            <!-- CART NAV-->
           <div class="bg-light px-4 py-3">
             <div class="row align-items-center text-center">
               <div class="col-md-6 mb-3 mb-md-0 text-md-left"><a class="btn btn-link p-0 text-dark btn-sm" href="shop.html"><i class="fas fa-long-arrow-alt-left mr-2"> </i>Continue shopping</a></div>
-              <div class="col-md-6 text-md-right"><a class="btn btn-outline-dark btn-sm" href="checkout.html">Procceed to Payment<i class="fas fa-long-arrow-alt-right ml-2"></i></a></div>
+              <div class="col-md-6 text-md-right"><button class="btn btn-outline-dark btn-sm" type="submit">Procceed to Payment<i class="fas fa-long-arrow-alt-right ml-2"></i></button></div>
             </div>
           </div>
+          </form>
+          
         </div>
         <!-- ORDER TOTAL-->
         <div class="col-lg-4">
@@ -84,6 +165,26 @@
       </div>
     </section>
   </div>
+<script>
+  (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+          // Fetch all the forms we want to apply custom Bootstrap validation styles to
+          var forms = document.getElementsByClassName('needs-validation');
+
+          // Loop over them and prevent submission
+          var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+</script>
 
 
 

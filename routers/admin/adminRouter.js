@@ -55,8 +55,7 @@ router.get('/register',auth,(req,res)=>{
 router.get('/add-product',logauth,async(req,res)=>{
     try {
         const brands = await Brand.find({admin:req.session.admin._id});
-        const categorys = await Category.find({admin:req.session.admin._id});
-        res.render('admin/index',{page:'add_product',user:req.session.admin,brands:brands,categorys:categorys});
+        res.render('admin/index',{page:'add_product',user:req.session.admin,brands:brands});
     } catch (error) {
         res.status(500).send();
     }

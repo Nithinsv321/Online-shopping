@@ -6,6 +6,33 @@ const orderSchema = new mongoose.Schema({
         required:true,
         trim:true
     },
+    details:{
+        name:{
+            type:String,
+            required:true,
+            trim:true
+        },
+        houseName:{
+            type:String,
+            required:true,
+            trim:true
+        },
+        zip:{
+            type:String,
+            required:true,
+            trim:true
+        },
+        state:{
+            type:String,
+            required:true,
+            trim:true
+        },
+        country:{
+            type:String,
+            required:true,
+            trim:true
+        },
+    },
     product:{
         type:mongoose.Schema.Types.ObjectId,
         required:true,
@@ -14,13 +41,17 @@ const orderSchema = new mongoose.Schema({
     quantity:{
         type:Number,
         required:true,
-        default: 1,
         trim:true
     },
     payment:{
         type:String,
         required:true,
         trim:true,
+    },
+    status:{
+        type:Boolean,
+        trim:true,
+        default:false,
     }
 });
 
