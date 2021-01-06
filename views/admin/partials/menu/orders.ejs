@@ -8,39 +8,64 @@
 </div>
 
 <br>
- <table class="table table-bordered" >
-    <thead class="thead-dark" >
+<div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="thead-dark">
         <tr>
-            <th>Product</th>
-            <th>User</th>
-            <th>Address</th>
-            <th>Quantity</th>
-            <th>Payment</th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Product</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Price</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Quantity</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Name</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Address</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Payment</strong></th>
+          <th class="border-0" scope="col"> <strong class="text-small text-uppercase">Total</strong></th>
         </tr>
-    </thead>
-    <tbody>
-        <% if(typeof orders != 'undefined') { %>
-            <% orders.forEach(function(order){ %>
-                <tr>
-                    <td>
-                        <div class="col-xl-12 col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                <h5 class="card-title"></h5>
-                                <p class="card-text"><%= order.OrderedProduct[0].model %> </p>
-                                <p class="card-text"><%= order.OrderedProduct[0].price %> </p>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><%= order.userOrdered[0].name %></td>
-                    <td><%= order.product %></td>
-                    <td><%= order.quantity %></td>
-                    <td><%= order.payment %></td>
-                 </tr>
-
-            <% }); %>
-         
-         <% } %>
-    </tbody>
-</table>
+      </thead>
+      <tbody>
+        <% if(typeof orderitems != 'undefined'){ %>
+          <% orderitems.forEach(function(order){ %>
+            <tr>
+              <th class="pl-0 border-light" scope="row">
+                <div class="media align-items-center"><a class="reset-anchor d-block animsition-link" href="detail.html"><img src="/product-images/<%=order.product %>.jpg" alt="..." width="70"/></a>
+                  <div class="media-body ml-3"><strong class="h6"><a class="reset-anchor animsition-link" href="detail.html"><%= order.prodetails[0].name %></a></strong></div>
+                </div>
+              </th>
+              <td class="align-middle border-light">
+                <p class="mb-0 small">$<%= order.amount %></p>
+              </td>
+              <td class="align-middle border-0">
+                <p class="mb-0 small"><%= order.quantity %></p>
+              </td>
+              <td class="align-middle border-0">
+                <p class="mb-0 small"><%= order.details.name %></p>
+              </td>
+              <td class="align-middle border-0">
+                <p class="mb-0 small"><%= order.details.houseName %></p>
+                <p class="mb-0 small"><%= order.details.state %></p>
+                <p class="mb-0 small"><%= order.details.country %></p>
+                <p class="mb-0 small"><%= order.details.zip %></p>
+              </td>
+              <td class="align-middle border-0">
+                  <% if(order.payment == 'cod' ){ %>
+                    <p class="mb-0 small">Cash on Delivery</p>
+                  <% } else{ %>
+                      <% if(order.status == true){ %>
+                        <p class="mb-0 small">Paid </p>
+                      <% }else{ %>
+                        <p class="mb-0 small">Cash on Delivery </p>
+                      <% } %>
+                     
+                  <% } %>
+                
+              </td>
+              <td class="align-middle border-light">
+                <p class="mb-0 small">$<%= order.quantity*order.amount %></p>
+              </td>
+            </tr>
+          <% }); %>
+          
+        <% } %>
+        
+      </tbody>
+    </table>
+  </div>

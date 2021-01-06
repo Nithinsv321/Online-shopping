@@ -13,9 +13,11 @@ const Orders = require('../../models/orders');
 //admin 
 // get -------------------------------------------------------------------------------------
 // home
-router.get('/home',logauth, (req, res) => {
+router.get('/home',logauth, async(req, res) => {
     try {
-        res.render('admin/index',{page:'home',user:req.session.admin});
+        const product = await Product.find({admin:req.session.admin._id});
+        const order = await Orders.find({});
+        res.render('admin/index',{page:'home',user:req.session.admin,product:product.length,order:order.length});
     } catch (error) {
         res.status(500).send();
     }
@@ -101,29 +103,20 @@ router.get('/add-stock/:id', logauth,async(req,res) => {
 });
 //orders
 router.get('/orders',logauth,async(req,res)=>{
-    try {
-         const orders = await Orders.aggregate([
-             {
-                $lookup:{
-                    from:'products',
-                    localField:'product',
-                    foreignField:'_id',
-                    as:'OrderedProduct',
-                    
-                }
-             },{
-                 $lookup:{
-                    from:'users',
-                    localField:'user',
-                    foreignField:'_id',
-                    as:'userOrdered',
-                 }
-             }
-         ]);
-         
-        res.render('admin/index',{page:'orders',user:req.session.admin,orders:orders});
-    } catch (error) {
-        console.log(error);
+    try{
+        const orderitems = await Orders.aggregate([
+            {$lookup:{   
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'prodetails'
+            }}
+        ]);
+        return res.render('admin/index',{page:'orders',user:req.session.admin,orderitems});
+            
+        
+    }catch(e){
+        console.log(e);
         res.status(500).send();
     }
 });
