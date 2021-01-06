@@ -33,6 +33,11 @@ const orderSchema = new mongoose.Schema({
             trim:true
         },
     },
+    amount:{
+        type:Number,
+        required:true,
+        trim:true
+    },
     product:{
         type:mongoose.Schema.Types.ObjectId,
         required:true,

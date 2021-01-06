@@ -60,7 +60,7 @@
                             <p class="mb-0 small">$<%= item.quantity*item.prodetails[0].price %></p>
                             <%  total = total + item.quantity*item.prodetails[0].price %>
                           </td>
-                          <td class="align-middle border-0"><a class="reset-anchor" href="/remove_item/<%= item._id %>"><i class="fas fa-trash-alt small text-muted"></i></a></td>
+                          <td class="align-middle border-0"><a class="reset-anchor" href="/remove_item/<%= item._id %>" onclick="return confirm('Are you sure')"><i class="fas fa-trash-alt small text-muted"></i></a></td>
                           <td class="align-middle border-0"><a class="reset-anchor" href="/checkout?g=<%= item._id %>"><button class="btn btn-info">Buy Now</button></i></a></td>
                         </tr>
                     <% }); %>

@@ -12,6 +12,7 @@ const Products =require('../models/products');
 const Cart = require('../models/cart');
 const userDetails = require('../models/userDetails');
 const helper = require('../controllers/helper');
+const user = require('../models/user');
  
 //get ---------------------------------------------
 //homePage
@@ -189,7 +190,6 @@ router.get('/remove_item/:id',userAuth,async(req,res)=>{
         const id= req.params.id;
         const item = await Cart.findByIdAndDelete({_id:id});
         res.redirect('/cart');
-            
     }catch(error){
         console.log(error);
         res.status(500).send();
@@ -200,19 +200,22 @@ router.get('/orders',userAuth,async(req,res)=>{
     try{
         const cart = await Cart.find({user:req.session.user._id});
         const orders = await Orders.find({user:req.session.user._id});
-        // orders.forEach(async function(order){
-        //     const orderitems = await order.products.aggregate([
-        //         {$lookup:{   
-        //             from: 'products',
-        //             localField: 'product',
-        //             foreignField: '_id',
-        //             as: 'prodetails'
-        //         }}
-        //     ]);
-        //     console.log(orderitems);
-
-        // });
-        res.render('user/index',{page:'orders',user:req.session.user,cart,orders});
+        const orderitems = await Orders.aggregate([
+            {
+                $match:{
+                    user:{$in:[mongoose.Types.ObjectId(req.session.user._id),mongoose.Types.ObjectId(orders.user)]}
+                },
+            },
+            {$lookup:{   
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'prodetails'
+            }}
+        ]);
+        return res.render('user/index',{page:'orders',user:req.session.user,cart,orderitems});
+            
+        
     }catch(e){
         console.log(e);
         res.status(500).send();
@@ -262,9 +265,23 @@ router.get('/checkout',userAuth,async(req,res)=>{
     }
 });
 //payment
-router.get('/payment',(req,res)=>{
+router.get('/payment',userAuth,async(req,res)=>{
     try{
-        res.render('payment/gateway');
+        const item = req.session.ordered;
+        if(typeof item == 'string'){
+            const order = await Orders.findById({_id:item});
+            return res.render('payment/gateway',{order:order});
+        }else{
+            let orders = [];
+            item.forEach(async(it,index)=>{
+                const order = await Orders.findById({_id:it});
+                orders.push(order);
+                if(index == item.length-1){
+                    return res.render('payment/gateway',{orders:orders});
+                }
+            });
+        }
+        
     }catch(error){
         console.log(error);
         res.status(500).send();
@@ -345,7 +362,7 @@ router.post('/register',async(req,res)=>{
         res.status(500).send();
     }
 });
-
+//place order
 router.post('/ship',userAuth,async(req,res)=>{
     try{
         const cart = await Cart.find({user:req.session.user._id});
@@ -379,10 +396,11 @@ router.post('/ship',userAuth,async(req,res)=>{
                 await regAddress.save();
         }
         if(typeof product == 'string'){
-            await helper.placeOrder(req.body,req.session.user).then(async()=>{
+            await helper.placeOrder(req.body,req.session.user).then(async(ordered)=>{
                 if(paymentMethod == 'cod'){
                     res.redirect('/orders');
                 }else{
+                    req.session.ordered = ordered;
                     res.redirect('/payment');
                 }
                 
@@ -391,10 +409,11 @@ router.post('/ship',userAuth,async(req,res)=>{
             });
         }else{
             await helper.placeOrders(req.body).then(async(proqty)=>{
-                await helper.bulkOrder(proqty,req.body,req.session.user).then(()=>{
+                await helper.bulkOrder(proqty,req.body,req.session.user).then((ordered)=>{
                     if(paymentMethod == 'cod'){
                         res.redirect('/orders');
                     }else{
+                        req.session.ordered = ordered;
                         res.redirect('/payment');
                     }
                 }).catch(()=>{
@@ -406,10 +425,36 @@ router.post('/ship',userAuth,async(req,res)=>{
         }
 
     }catch(error){
-        console.log(error);
         res.status(500).send();
     }
-})
+});
+//payment
+router.post('/payment',userAuth,async(req,res)=>{
+    try {
+        const item = req.session.ordered;
+        if(typeof item == 'string'){
+            const order = await Orders.findByIdAndUpdate({_id:item},{status:true});
+            if(!order){
+                return res.render('payment/gateway',{msg:'Please try again'});
+            }
+            return res.redirect('/orders');
+        }else{
+            let orders = [];
+            item.forEach(async(it,index)=>{
+                const order = await Orders.findByIdAndUpdate({_id:it},{status:true});
+                orders.push(order);
+                if(!order){
+                    return res.render('payment/gateway',{msg:'Please try again'});
+                }
+                if(index == item.length-1){
+                    return res.redirect('/orders');
+                }
+            });
+        }
+    } catch (error) {
+        res.status(500).send();
+    }
+});
 
 
 

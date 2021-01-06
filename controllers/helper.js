@@ -21,16 +21,18 @@ module.exports ={
                     state:order.state,
                     country:order.country,
                 },
+                amount:order.amount,
                 payment:order.paymentMethod,
 
             });
             const saved = await newOrder.save();
+
             const product = await Products.findById({_id:order.product});
             let quantity = product.quantity - order.quantity;
             const productUpdate = await Products.findByIdAndUpdate({_id:order.product},{quantity:quantity});
             const cart = await Cart.findOneAndDelete({product:order.product,user:user._id});
             if(saved && productUpdate && cart){
-                resolve();
+                resolve(saved._id);
             }else{
                 reject();
             }
@@ -39,20 +41,26 @@ module.exports ={
     placeOrders:(orders)=>{
         return new Promise(async(resolve,reject)=>{
             let proqty =[];
-            for(let i=0,j=0;i<orders.product.length,j<orders.quantity.length;i++,j++){
+            
+            for(let i=0;i<orders.product.length;i++){
                 proqty.push({
                     product:orders.product[i],
-                    quantity:orders.quantity[j],
+                    quantity:orders.quantity[i],
+                    amount:orders.amount[i],
                 });
+                if(i == orders.product.length-1){
+                    resolve(proqty);
+                }
             }
-            resolve(proqty);
+            
         });
         
     },
     bulkOrder:(proqty,order,user)=>{
         return new Promise(async(resolve,reject)=>{
             let f=0;
-            proqty.forEach(async function(pro){
+            let ordered = [];
+            proqty.forEach(async function(pro,index){
                 const newOrder = new Orders({
                     user:user._id,
                     product:pro.product,
@@ -64,10 +72,12 @@ module.exports ={
                         state:order.state,
                         country:order.country,
                     },
+                    amount:pro.amount,
                     payment:order.paymentMethod,
     
                 });
                 const saved = await newOrder.save();
+                await ordered.push(saved._id);
                 const product = await Products.findById({_id:pro.product});
                 let quantity = product.quantity - pro.quantity;
                 const productUpdate = await Products.findByIdAndUpdate({_id:pro.product},{quantity:quantity});
@@ -75,12 +85,21 @@ module.exports ={
                 if(!saved && !productUpdate && !cart){
                     f++;
                 }
+                if(index == proqty.length - 1){
+                    if(f>0){
+                        reject();
+                    }else{
+                        resolve(ordered);
+                    }
+                }
             });
-            if(f>0){
-                reject();
-            }else{
-                resolve();
-            }
+            
+            
+        });
+    },
+    paypass:()=>{
+        return new Promise((resolve,reject)=>{
+
         });
     }
 }

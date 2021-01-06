@@ -19,10 +19,10 @@
     </section>
     <section class="py-5">
       <h2 class="h5 text-uppercase mb-4">Checkout</h2>
+      <% if(typeof msg != 'undefined'){ %>
+        <div class="alert alert-danger"><%= msg %></div>
+      <% } %>
       <div class="row">
-        <% if(typeof msg != 'undefined'){ %>
-          <div class="alert alert-danger"><%= msg %></div>
-        <% } %>
         <div class="col-lg-8 mb-4 mb-lg-0">
           <!-- CART TABLE-->
           <div class="table-responsive mb-4">
@@ -69,8 +69,11 @@
               <% cartitem.forEach(function(item){ %>
                     <input type="hidden" value="<%= item.product %>" name="product">
                     <input type="hidden" value="<%= item.quantity %>" name="quantity">
+                    <input type="hidden" value="<%= item.quantity*item.prodetails[0].price %>" name="amount">
+
                 <% }); %>
             <% } %>
+
             <div class="row">
               
             </div>
