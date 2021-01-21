@@ -29,7 +29,7 @@
               <li class="mb-2"><a class="reset-anchor" href="/shop?g=Women">Women's</a></li>
               <li class="mb-2"><a class="reset-anchor" href="/shop?g=Men">Men's </a></li>
               <li class="mb-2"><a class="reset-anchor" href="/shop?g=Children">Childrens</a></li>
-              <li class="mb-2"><a class="reset-anchor" href="/shop?g=Unisex">Unisex</a></li>
+              <li class="mb-2"><a class="reset-anchor" href="/shop?g=ALL">Unisex</a></li>
               
             </ul>
             <div class="py-2 px-4 bg-light mb-3"><strong class="small text-uppercase font-weight-bold">Type</strong></div>
@@ -64,14 +64,20 @@
                             <div class="product text-center">
                               <div class="mb-3 position-relative">
                                 <div class="badge text-white badge-"></div>
-                                <a class="d-block" href="/detail/<%= product._id %>">
+                                <% if(product.quantity == 0){ %>
+                                  <div class="badge text-white badge-danger">Sold</div>
+                                <% } %><a class="d-block" href="/detail/<%= product._id %>">
                                   <img class="img-fluid w-100" src="/product-images/<%= product.id %>.jpg" alt="product-image">
                                 </a>
                                 <div class="product-overlay">
                                   <ul class="mb-0 list-inline">
-                                    <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-outline-dark" href="#"><i class="far fa-heart"></i></a></li>
-                                    <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-dark" href="/add_to_cart?s=<%= product._id %>">Add to cart</a></li>
-                                    <li class="list-inline-item mr-0"><a class="btn btn-sm btn-outline-dark" href="#productView" data-toggle="modal"><i class="fas fa-expand"></i></a></li>
+                                    <% if(product.quantity == 0){ %>
+                                      <li class="list-inline-item m-0 p-0 "><p class="btn btn-sm btn-danger">Out of Stock</p></li>
+                                    <% }else{ %>
+                                      <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-dark" href="/add_to_cart?s=<%= product._id %>">Add to cart</a></li>
+                                    <% } %>
+                                    
+                                    
                                   </ul>
                                 </div>
                               </div>

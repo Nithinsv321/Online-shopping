@@ -61,28 +61,14 @@
                             <%  total = total + item.quantity*item.prodetails[0].price %>
                           </td>
                           <td class="align-middle border-0"><a class="reset-anchor" href="/remove_item/<%= item._id %>" onclick="return confirm('Are you sure')"><i class="fas fa-trash-alt small text-muted"></i></a></td>
-                          <td class="align-middle border-0"><a class="reset-anchor" href="/checkout?g=<%= item._id %>"><button class="btn btn-info">Buy Now</button></i></a></td>
+                          <% if(item.prodetails[0].quantity > 0 ){ %>
+                          <td class="align-middle border-0"><a class="reset-anchor" href="/checkout?g=<%= item._id %>"><button class="btn btn-info">Buy Now</button></a></td>
+                          <% }else{ %>
+                            <td class="align-middle border-0"><p class="reset-anchor btn btn-danger" >Out of Stock</p></td>
+                          <% } %>
                         </tr>
                     <% }); %>
                   <% } %>
-                
-                <!-- <tr>
-                  <th class="pl-0 border-light" scope="row">
-                    <div class="media align-items-center"><a class="reset-anchor d-block animsition-link" href="detail.html"><img src="/user/img/product-detail-2.jpg" alt="..." width="70"/></a>
-                      <div class="media-body ml-3"><strong class="h6"><a class="reset-anchor animsition-link" href="detail.html">Apple watch</a></strong></div>
-                    </div>
-                  </th>
-                  <td class="align-middle border-light">
-                    <p class="mb-0 small">$250</p>
-                  </td>
-                  <td class="align-middle border-0">
-                    <p class="mb-0 small">1</p>
-                  </td>
-                  <td class="align-middle border-light">
-                    <p class="mb-0 small">$250</p>
-                  </td>
-                  <td class="align-middle border-light"><a class="reset-anchor" href="#"><i class="fas fa-trash-alt small text-muted"></i></a></td>
-                </tr> -->
               </tbody>
             </table>
           </div>

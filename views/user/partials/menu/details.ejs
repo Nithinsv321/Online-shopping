@@ -14,16 +14,24 @@
         <div class="col-lg-6">
           <h1><%= product.name %></h1>
           <p class="text-muted lead">$<%= product.price %></p>
+          <% if(product.quantity == 0){ %>
+            <div class="badge text-white badge-danger mb-3">Out of Stock</div>
+          <% }%>
           <p class="text-small mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ut ullamcorper leo, eget euismod orci. Cum sociis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus. Vestibulum ultricies aliquam convallis.</p>
+          
           <ul class="list-unstyled small d-inline-block">
             <li class="px-3 py-2 mb-1 bg-white"><strong class="text-uppercase">Model:</strong><span class="ml-2 text-muted"><%= product.model %></span></li>
             <li class="px-3 py-2 mb-1 bg-white text-muted"><strong class="text-uppercase text-dark">Category:</strong> <%= product.category %></li>
             <li class="px-3 py-2 mb-1 bg-white text-muted"><strong class="text-uppercase text-dark">Brand:</strong> <%= product.brand %> </li>
           </ul>
+          
           <div class="row align-items-stretch mb-4 ml-1">
+            
             <div class="col-sm-3 pl-sm-0">
+              <% if(product.quantity > 0){ %>
                 <a class="btn btn-dark btn-sm btn-block h-100 d-flex align-items-center justify-content-center px-0" href="/add_to_cart?d=<%= product._id %>">Add to cart  
-            </a>
+                </a>
+              <% }%>
             </div>
           </div>
         </div>

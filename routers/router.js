@@ -12,7 +12,6 @@ const Products =require('../models/products');
 const Cart = require('../models/cart');
 const userDetails = require('../models/userDetails');
 const helper = require('../controllers/helper');
-const user = require('../models/user');
  
 //get ---------------------------------------------
 //homePage

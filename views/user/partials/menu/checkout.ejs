@@ -40,7 +40,8 @@
                 <% let total = 0 %>
                 <% if(typeof cartitem != 'undefined'){ %>
                     <% cartitem.forEach(function(item){ %>
-                      <tr>
+                      <% if(item.prodetails[0].quantity > 0 ){ %>
+                        <tr>
                           <th class="pl-0 border-0" scope="row">
                             <div class="media align-items-center"><a class="reset-anchor d-block animsition-link" href="/detail/<%= item.product %>"><img src="/product-images/<%= item.product %>.jpg" alt="..." width="70"/></a>
                               <div class="media-body ml-3"><strong class="h6"><a class="reset-anchor animsition-link" href="/detail/<%= item.product %>"><%= item.prodetails[0].name %></a></strong></div>
@@ -56,8 +57,8 @@
                             <p class="mb-0 small">$<%= item.quantity*item.prodetails[0].price %></p>
                             <%  total = total + item.quantity*item.prodetails[0].price %>
                           </td>
-                          
                         </tr>
+                      <% } %>
                     <% }); %>
                   <% } %>
                  
@@ -67,10 +68,11 @@
           <form class="needs-validation" novalidate="" method="POST" action="/ship">
             <% if(typeof cartitem != 'undefined'){ %>
               <% cartitem.forEach(function(item){ %>
+                  <% if(item.prodetails[0].quantity > 0 ){ %>
                     <input type="hidden" value="<%= item.product %>" name="product">
                     <input type="hidden" value="<%= item.quantity %>" name="quantity">
                     <input type="hidden" value="<%= item.quantity*item.prodetails[0].price %>" name="amount">
-
+                  <% } %>
                 <% }); %>
             <% } %>
 
