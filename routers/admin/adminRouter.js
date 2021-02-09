@@ -194,7 +194,6 @@ router.post('/add-product',logauth,async(req,res)=>{
         const type = req.body.type;
         let image = req.files.image;
         const brands = await Brand.find({admin:req.session.admin._id});
-        const categorys = await Category.find({admin:req.session.admin._id});
         if(!name || !model || !price || !quantity){
             add_product_errors.push({msg:"Please Enter all the products"});
         }
